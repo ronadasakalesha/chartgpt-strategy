@@ -22,11 +22,12 @@ def apply_strategy(df):
         if pd.isna(row["Recent_High"]) or pd.isna(row["Recent_Low"]):
             continue
 
+        # 🔥 UPDATED TREND FILTER (stronger)
         trend_strength = abs(float(row["EMA21"]) - float(row["EMA50"]))
-        if trend_strength < 0.3:
+        if trend_strength < 0.5:   # increased from 0.3
             continue
 
-        # Trap detection
+        # Trap
         if waiting_for_confirmation is None and position is None:
 
             if (
@@ -43,12 +44,11 @@ def apply_strategy(df):
             ):
                 waiting_for_confirmation = "SELL"
 
-        # Confirmation
+        # Confirmation (BACK TO WORKING VERSION)
         elif waiting_for_confirmation is not None and position is None:
 
             if waiting_for_confirmation == "BUY" and float(row["Close"]) > float(row["Open"]):
 
-                # 🔥 STRUCTURE SL
                 sl = min(df.iloc[i-5:i]["Low"])
                 entry = float(row["Close"])
                 risk = entry - sl
